@@ -6,6 +6,20 @@ define('DEBUG',TRUE); #we want to see all errors
 // echo THIS_PAGE;
 // die; (ends execution so it never gets to header or anything after)
 
+date_default_timezone_set('America/Los_Angeles'); #sets default date/timezone for this website
+
+# End Config area --------------------------------
+ob_start();  #buffers our page to be prevent header errors. Call before INC files or ANY html!
+header("Cache-Control: no-cache");header("Expires: -1");#Helps stop browser & proxy caching
+
+$title = THIS_PAGE; //fallback unique title - see title tag in header.php
+if(DEBUG)
+{# When debugging, show all errors & warnings
+	ini_set('error_reporting', E_ALL | E_STRICT);  
+}else{# zero will hide everything except fatal errors
+	ini_set('error_reporting', 0);  
+}  
+
 $nav1['template.php'] = "Home";
 $nav1['hawaii.php'] = "Hawaii";
 $nav1['jamaica.php'] = "Jamaica";
@@ -111,3 +125,23 @@ function myerror($myFile, $myLine, $errorMsg)
         die();
     }
 }
+
+/**
+ * Wrapper function for processing data pulled from db
+ *
+ * Forward slashes are added to MySQL data upon entry to prevent SQL errors.  
+ * Using our dbOut() function allows us to encapsulate the most common functions for removing  
+ * slashes with the PHP stripslashes() function, plus the trim() function to remove spaces.
+ *
+ * Later, we can add to this function sitewide, as new requirements or vulnerabilities develop.
+ *
+ * @param string $str data as pulled from MySQL
+ * @return $str data cleaned of slashes, spaces around string, etc.
+ * @see dbIn()
+ * @todo none
+ */
+function dbOut($str)
+{
+	if($str!=""){$str = stripslashes(trim($str));}//strip out slashes entered for SQL safety
+	return $str;
+} #End dbOut()
